@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tra Cứu Kết Quả Học Tập STEM Robotics</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .navbar-brand { font-weight: bold; letter-spacing: 1px; }
+        .card { border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .table-responsive { border-radius: 12px; overflow: hidden; }
+        .table-dark-custom th { background-color: #343a40; color: #ffffff; font-weight: 500; text-align: center; }
+        .table-rubric th { background-color: #0d6efd; color: white; font-size: 0.9rem; }
+        .badge-score { font-size: 1rem; padding: 6px 12px; border-radius: 20px; }
+        .bg-excellent { background-color: #198754; color: white; }
+        .bg-good { background-color: #0dcaf0; color: black; }
+        .bg-average { background-color: #ffc107; color: black; }
+        .loading-status { display: flex; justify-content: center; align-items: center; min-height: 80px; }
+        .empty-state { padding: 30px; color: #6c757d; }
+        .rubric-header { cursor: pointer; background-color: #e9ecef; transition: background 0.2s; }
+        .rubric-header:hover { background-color: #dee2e6; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fa-solid fa-robot me-2"></i>STEM ROBOTICS PORTAL</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        
+        <div class="card mb-4">
+            <div class="card-header rubric-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#rubricDetails">
+                <span class="fw-bold text-secondary"><i class="fa-solid fa-table-list me-2 text-primary"></i>XEM BẢNG TIÊU CHÍ ĐÁNH GIÁ RUBRIC (CHUẨN LẬP TRÌNH & LẮP RÁP)</span>
+                <i class="fa-solid fa-chevron-down text-muted"></i>
+            </div>
+            <div id="rubricDetails" class="collapse show">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle mb-0 text-center" style="font-size: 0.85rem;">
+                            <thead>
+                                <tr class="table-rubric">
+                                    <th style="width: 15%;">Tiêu chí \ Điểm</th>
+                                    <th style="width: 17%;">1 - 2 Điểm (Cần cố gắng)</th>
+                                    <th style="width: 17%;">3 Điểm (Đạt yêu cầu)</th>
+                                    <th style="width: 17%;">4 Điểm (Khá)</th>
+                                    <th style="width: 17%;">5 Điểm (Xuất sắc)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="fw-bold text-start bg-light">1. Tư duy & Lập trình</td>
+                                    <td class="text-muted text-start">Chưa hiểu câu lệnh cơ bản; cần giáo viên hỗ trợ viết code hoàn toàn.</td>
+                                    <td class="text-start">Biết kéo thả khối lệnh cơ bản nhưng thuật toán vòng lặp/điều kiện còn lỗi.</td>
+                                    <td class="text-start">Tự viết được chương trình chạy ổn định, cấu trúc code logic rõ ràng.</td>
+                                    <td class="text-start text-success fw-bold">Tối ưu hóa thuật toán xuất sắc; tự sửa lỗi (debug) nhanh và sáng tạo câu lệnh nâng cao.</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold text-start bg-light">2. Kỹ năng Lắp ráp</td>
+                                    <td class="text-muted text-start">Mô hình lỏng lẻo, lắp sai cấu trúc cơ khí hoặc không theo kịp bài giảng.</td>
+                                    <td class="text-start">Hoàn thành robot nhưng kết cấu chưa tối ưu, bánh răng hoặc trục đôi khi bị kẹt.</td>
+                                    <td class="text-start">Lắp ráp đúng, chắc chắn, robot vận hành trơn tru theo đúng bản vẽ kỹ thuật.</td>
+                                    <td class="text-start text-success fw-bold">Cơ cấu cơ khí cực kỳ chắc chắn; sử dụng thành thạo và linh hoạt các loại cảm biến/động cơ.</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold text-start bg-light">3. Sáng tạo & Giải quyết vấn đề</td>
+                                    <td class="text-muted text-start">Dễ nản lòng khi gặp lỗi; không có sự cải tiến so với mẫu cơ bản.</td>
+                                    <td class="text-start">Biết tìm kiếm sự hỗ trợ khi robot lỗi, chỉnh sửa được các lỗi nhỏ khi được nhắc nhở.</td>
+                                    <td class="text-start">Chủ động tìm nguyên nhân khi lỗi; cải tiến thêm một vài chi tiết thẩm mỹ độc lập.</td>
+                                    <td class="text-success fw-bold text-start">Đưa ra giải pháp độc đáo khi thử thách thất bại; thiết kế thêm tính năng ngoài yêu cầu đề bài.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-4 mb-4">
+            <h5 class="card-title mb-3"><i class="fa-solid fa-shield-halved me-2 text-primary"></i>Hệ Thống Tra Cứu Bảo Mật</h5>
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <label class="form-label small text-muted fw-bold">1. CHỌN TÊN HỌC SINH:</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="fa-solid fa-address-book text-muted"></i></span>
+                        <select id="studentSelect" class="form-select" onchange="resetVerification()" disabled>
+                            <option value="">-- Đang tải danh sách học sinh... --</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small text-muted fw-bold">2. NHẬP MẬT KHẨU TRUY CẬP:</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="fa-solid fa-key text-muted"></i></span>
+                        <input type="password" id="passwordInp" class="form-control" placeholder="Nhập mã pin / mật khẩu...">
+                    </div>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" type="button" onclick="handleVerifyAndSearch()">
+                        <i class="fa-solid fa-unlock-keyhole me-2"></i>Xem Bảng Điểm
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-3">
+            <div id="loading" class="loading-status">
+                <div class="text-center">
+                    <div class="spinner-border text-primary spinner-border-sm mb-2" role="status"></div>
+                    <p class="text-muted small mb-0">Đang đồng bộ dữ liệu với Google Sheets...</p>
+                </div>
+            </div>
+
+            <div id="emptyState" class="empty-state text-center d-none">
+                <i class="fa-solid fa-lock fa-2x mb-2 text-muted"></i>
+                <p class="mb-0 small">Vui lòng chọn học sinh, nhập đúng mật khẩu và bấm "Xem Bảng Điểm".</p>
+            </div>
+
+            <div id="tableWrapper" class="table-responsive d-none">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-dark-custom">
+                        <tr>
+                            <th>Học Sinh</th>
+                            <th>Bài Học</th>
+                            <th>Ngày Học</th>
+                            <th>Lập Trình (1-5)</th>
+                            <th>Lắp Ráp (1-5)</th>
+                            <th>Sáng Tạo (1-5)</th>
+                            <th>ĐTB Rubric</th>
+                            <th style="width: 30%;">Nhận Xét Chi Tiết</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentData">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ĐÃ CẬP NHẬT ĐƯỜNG DẪN WEB APP CHUẨN XÓA LỖI ĐƯỜNG TRUYỀN CỦA BẠN
+        const CONFIG_API_URL = "https://script.google.com/macros/s/AKfycbwKJKB4iLKwMlUUs5Vwhzv0EY6T-DPzS0RouEpAd3ZkWzQizjoob157Yxu3Gz5LI16fsw/exec"; 
+        
+        let studentDataRecords = [];
+        let studentCredentials = {};
+
+        async function fetchStudentData() {
+            try {
+                const response = await fetch(CONFIG_API_URL);
+                const masterData = await response.json();
+                
+                studentDataRecords = masterData.scoreList || [];
+                studentCredentials = masterData.studentCredentials || {};
+                
+                document.getElementById('loading').classList.add('d-none');
+                document.getElementById('emptyState').classList.remove('d-none');
+                
+                populateDropdown(masterData.studentList || []);
+            } catch (error) {
+                console.error("Lỗi:", error);
+                document.getElementById('loading').innerHTML = `<p class="text-danger mb-0 small"><i class="fa-solid fa-circle-exclamation me-1"></i>Lỗi kết nối API. Hãy kiểm tra cài đặt Deploy của Google Script.</p>`;
+            }
+        }
+
+        function populateDropdown(nameList) {
+            const selectEl = document.getElementById('studentSelect');
+            selectEl.innerHTML = '<option value="">-- Chọn tên học sinh của lớp --</option>';
+            
+            let uniqueNames = [...new Set(nameList)];
+            uniqueNames.sort();
+
+            uniqueNames.forEach(name => {
+                let option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                selectEl.appendChild(option);
+            });
+
+            selectEl.disabled = false;
+        }
+
+        // Khi người dùng đổi chọn học sinh khác, ẩn bảng điểm cũ đi để bắt nhập mật khẩu mới
+        function resetVerification() {
+            document.getElementById('passwordInp').value = "";
+            document.getElementById('tableWrapper').classList.add('d-none');
+            document.getElementById('emptyState').classList.remove('d-none');
+        }
+
+        // Hàm xử lý xác thực bảo mật và truy xuất kết quả
+        function handleVerifyAndSearch() {
+            const selectedName = document.getElementById('studentSelect').value;
+            const enteredPass = document.getElementById('passwordInp').value.trim();
+            const tableWrapper = document.getElementById('tableWrapper');
+            const emptyState = document.getElementById('emptyState');
+
+            if (selectedName === "") {
+                alert("Vui lòng chọn một học sinh trong danh sách!");
+                return;
+            }
+
+            // Kiểm tra mật khẩu tương ứng từ cơ sở dữ liệu Sheets
+            const correctPass = studentCredentials[selectedName] ? studentCredentials[selectedName].toString().trim() : "";
+
+            if (enteredPass !== correctPass) {
+                alert("Mật khẩu truy cập chưa chính xác! Vui lòng kiểm tra lại.");
+                tableWrapper.classList.add('d-none');
+                emptyState.classList.remove('d-none');
+                return;
+            }
+
+            // Nếu đúng mật khẩu -> Lọc dữ liệu điểm số
+            const filteredScores = studentDataRecords.filter(item => {
+                let currentName = item["Họ và Tên Học Sinh"] || "";
+                return currentName.toString().trim() === selectedName.trim();
+            });
+
+            renderTable(filteredScores);
+            emptyState.classList.add('d-none');
+            tableWrapper.classList.remove('d-none');
+        }
+
+        function renderTable(dataList) {
+            const tbody = document.getElementById('studentData');
+            tbody.innerHTML = "";
+
+            if (dataList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-4"><i class="fa-solid fa-circle-info me-2"></i>Học sinh này đã xác thực đúng pass nhưng chưa có bản ghi điểm bài học nào.</td></tr>`;
+                return;
+            }
+
+            dataList.forEach(student => {
+                let name = student["Họ và Tên Học Sinh"] || "Chưa rõ";
+                let lesson = student["Bài Học"] || "-";
+                let date = student["Ngày Học"] ? new Date(student["Ngày Học"]).toLocaleDateString('vi-VN') : "-";
+                
+                let p1 = parseFloat(student["Tiêu chí 1: Tư duy logic & Lập trình (1-5)"]) || 0;
+                let p2 = parseFloat(student["Tiêu chí 2: Kỹ năng lắp ráp Robot (1-5)"]) || 0;
+                let p3 = parseFloat(student["Tiêu chí 3: Giải quyết vấn đề & Sáng tạo (1-5)"]) || 0;
+                let comment = student["Nhận xét chi tiết / Đánh giá chung"] || "Chưa có nhận xét.";
+
+                let avg = ((p1 + p2 + p3) / 3).toFixed(1);
+                let badgeClass = "bg-average";
+                if (avg >= 4.5) badgeClass = "bg-excellent";
+                else if (avg >= 3.5) badgeClass = "bg-good";
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${name}</strong></td>
+                        <td><span class="text-secondary">${lesson}</span></td>
+                        <td class="text-center">${date}</td>
+                        <td class="text-center fw-bold text-primary">${p1}</td>
+                        <td class="text-center fw-bold text-success">${p2}</td>
+                        <td class="text-center fw-bold text-warning">${p3}</td>
+                        <td class="text-center"><span class="badge badge-score ${badgeClass}">${avg}</span></td>
+                        <td><small class="text-muted">${comment}</small></td>
+                    </tr>
+                `;
+            });
+        }
+
+        window.onload = fetchStudentData;
+    </script>
+</body>
+</html>
