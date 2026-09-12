@@ -14,6 +14,7 @@
         .table-dark-custom th { background-color: #343a40; color: #ffffff; font-weight: 500; text-align: center; }
         .table-rubric th { background-color: #0d6efd; color: white; font-size: 0.9rem; }
         .badge-score { font-size: 1rem; padding: 6px 12px; border-radius: 20px; }
+        .badge-course { font-size: 0.85rem; padding: 5px 10px; border-radius: 8px; background-color: #0d6efd; color: white; }
         .bg-excellent { background-color: #198754; color: white; }
         .bg-good { background-color: #0dcaf0; color: black; }
         .bg-average { background-color: #ffc107; color: black; }
@@ -21,6 +22,17 @@
         .empty-state { padding: 30px; color: #6c757d; }
         .rubric-header { cursor: pointer; background-color: #e9ecef; transition: background 0.2s; }
         .rubric-header:hover { background-color: #dee2e6; }
+        
+        .lesson-link {
+            color: #0d6efd;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .lesson-link:hover {
+            text-decoration: underline;
+            color: #0a58ca;
+        }
     </style>
 </head>
 <body>
@@ -33,6 +45,7 @@
 
     <div class="container">
         
+        <!-- BẢNG TIÊU CHÍ RUBRICS -->
         <div class="card mb-4">
             <div class="card-header rubric-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#rubricDetails">
                 <span class="fw-bold text-secondary"><i class="fa-solid fa-table-list me-2 text-primary"></i>XEM BẢNG TIÊU CHÍ ĐÁNH GIÁ RUBRIC (CHUẨN LẬP TRÌNH & LẮP RÁP)</span>
@@ -80,28 +93,38 @@
             </div>
         </div>
 
+        <!-- SEARCH, KHÓA HỌC VÀ PASS -->
         <div class="card p-4 mb-4">
             <h5 class="card-title mb-3"><i class="fa-solid fa-shield-halved me-2 text-primary"></i>Hệ Thống Tra Cứu Bảo Mật</h5>
             <div class="row g-3">
-                <div class="col-md-5">
+                <div class="col-md-4">
                     <label class="form-label small text-muted fw-bold">1. CHỌN TÊN HỌC SINH:</label>
                     <div class="input-group">
                         <span class="input-group-text bg-white"><i class="fa-solid fa-address-book text-muted"></i></span>
                         <select id="studentSelect" class="form-select" onchange="resetVerification()" disabled>
-                            <option value="">-- Đang tải danh sách học sinh... --</option>
+                            <option value="">-- Đang tải học sinh... --</option>
                         </select>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label small text-muted fw-bold">2. NHẬP MẬT KHẨU TRUY CẬP:</label>
+                <div class="col-md-3">
+                    <label class="form-label small text-muted fw-bold">2. CHỌN KHÓA HỌC:</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-white"><i class="fa-solid fa-key text-muted"></i></span>
-                        <input type="password" id="passwordInp" class="form-control" placeholder="Nhập mã pin / mật khẩu...">
+                        <span class="input-group-text bg-white"><i class="fa-solid fa-graduation-cap text-muted"></i></span>
+                        <select id="courseSelect" class="form-select">
+                            <option value="ALL">-- Tất cả khóa học --</option>
+                        </select>
                     </div>
                 </div>
-                <div class="col-md-3 d-flex align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label small text-muted fw-bold">3. NHẬP MẬT KHẨU:</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="fa-solid fa-key text-muted"></i></span>
+                        <input type="password" id="passwordInp" class="form-control" placeholder="Nhập mã pin...">
+                    </div>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
                     <button class="btn btn-primary w-100" type="button" onclick="handleVerifyAndSearch()">
-                        <i class="fa-solid fa-unlock-keyhole me-2"></i>Xem Bảng Điểm
+                        <i class="fa-solid fa-unlock-keyhole me-1"></i>Xem Bảng Điểm
                     </button>
                 </div>
             </div>
@@ -111,13 +134,13 @@
             <div id="loading" class="loading-status">
                 <div class="text-center">
                     <div class="spinner-border text-primary spinner-border-sm mb-2" role="status"></div>
-                    <p class="text-muted small mb-0">Đang đồng bộ dữ liệu với Google Sheets...</p>
+                    <p class="text-muted small mb-0">Đang đồng bộ dữ liệu từ Google Sheets...</p>
                 </div>
             </div>
 
             <div id="emptyState" class="empty-state text-center d-none">
                 <i class="fa-solid fa-lock fa-2x mb-2 text-muted"></i>
-                <p class="mb-0 small">Vui lòng chọn học sinh, nhập đúng mật khẩu và bấm "Xem Bảng Điểm".</p>
+                <p class="mb-0 small">Vui lòng chọn học sinh, chọn khóa học, nhập mật khẩu và bấm "Xem Bảng Điểm".</p>
             </div>
 
             <div id="tableWrapper" class="table-responsive d-none">
@@ -125,13 +148,14 @@
                     <thead class="table-dark-custom">
                         <tr>
                             <th>Học Sinh</th>
+                            <th>Khóa Học</th>
                             <th>Bài Học</th>
                             <th>Ngày Học</th>
                             <th>Lập Trình (1-5)</th>
                             <th>Lắp Ráp (1-5)</th>
                             <th>Sáng Tạo (1-5)</th>
                             <th>ĐTB Rubric</th>
-                            <th style="width: 30%;">Nhận Xét Chi Tiết</th>
+                            <th style="width: 25%;">Nhận Xét Chi Tiết</th>
                         </tr>
                     </thead>
                     <tbody id="studentData">
@@ -141,13 +165,44 @@
         </div>
     </div>
 
+    <!-- MODAL HIỂN THỊ ẢNH -->
+    <div class="modal fade" id="lessonImageModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="fa-solid fa-image me-2"></i>Hình Ảnh Mô Hình Bài Học</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-3">
+                    <h6 id="modalLessonTitle" class="fw-bold mb-3 text-secondary"></h6>
+                    <img id="modalLessonImg" src="" alt="Mô hình bài học" class="img-fluid rounded shadow-sm" style="max-height: 450px; object-fit: contain;">
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // THAY ĐƯỜNG DẪN WEB APP CHÍNH XÁC CỦA BẠN VÀO ĐÂY SAU KHI DEPLOY LẠI SCRIPT
-        const CONFIG_API_URL = "https://script.google.com/macros/s/AKfycbzFKpJj92yZmlPI2-d8hgqUSblpFRYXfbHkg0xzmPbwo3pEmdADRt6C-IR8IFFgY-z3sQ/exec"; 
+        const CONFIG_API_URL = "https://script.google.com/macros/s/AKfycbzC6i1o1WA6hWylLd5gjst5w4BSNWV_YrK-wPe0m-BF6d0W5yWgiKQsEIB42U4yk2pnbg/exec"; 
         
         let studentDataRecords = [];
         let studentCredentials = {};
+        let lessonImageMap = {};
+
+        function formatDriveUrl(rawUrl) {
+            if (!rawUrl) return "https://via.placeholder.com/600x400?text=Chua+co+anh+mo+hinh";
+            rawUrl = rawUrl.trim();
+            
+            let fileId = "";
+            let match = rawUrl.match(/\/d\/([^\/]+)/) || rawUrl.match(/id=([^&]+)/);
+            if (match && match[1]) {
+                fileId = match[1];
+            } else if (!rawUrl.includes("http")) {
+                fileId = rawUrl;
+            }
+
+            return fileId ? `https://lh3.googleusercontent.com/d/${fileId}` : rawUrl;
+        }
 
         async function fetchStudentData() {
             try {
@@ -156,28 +211,28 @@
                 
                 studentDataRecords = masterData.scoreList || [];
                 studentCredentials = masterData.studentCredentials || {};
+                lessonImageMap = masterData.lessonImages || {};
                 
                 document.getElementById('loading').classList.add('d-none');
                 document.getElementById('emptyState').classList.remove('d-none');
                 
-                populateDropdown(masterData.studentList || []);
+                populateStudentDropdown(masterData.studentList || []);
+                populateCourseDropdown(masterData.courseList || []);
             } catch (error) {
                 console.error("Lỗi:", error);
                 document.getElementById('loading').innerHTML = `
                     <div class="text-danger text-center">
                         <i class="fa-solid fa-circle-exclamation fa-2x mb-2"></i>
-                        <p class="mb-0 small">Không thể đồng bộ API cấu hình. Vui lòng kiểm tra lại trạng thái Deploy của Google Script.</p>
+                        <p class="mb-0 small">Không thể đồng bộ API cấu hình. Vui lòng kiểm tra lại Google Script.</p>
                     </div>`;
             }
         }
 
-        function populateDropdown(nameList) {
+        function populateStudentDropdown(nameList) {
             const selectEl = document.getElementById('studentSelect');
-            selectEl.innerHTML = '<option value="">-- Chọn tên học sinh của lớp --</option>';
+            selectEl.innerHTML = '<option value="">-- Chọn tên học sinh --</option>';
             
-            let uniqueNames = [...new Set(nameList)];
-            uniqueNames.sort();
-
+            let uniqueNames = [...new Set(nameList)].sort();
             uniqueNames.forEach(name => {
                 let option = document.createElement('option');
                 option.value = name;
@@ -188,6 +243,19 @@
             selectEl.disabled = false;
         }
 
+        function populateCourseDropdown(courseList) {
+            const selectEl = document.getElementById('courseSelect');
+            selectEl.innerHTML = '<option value="ALL">-- Tất cả khóa học --</option>';
+            
+            let uniqueCourses = [...new Set(courseList)].sort();
+            uniqueCourses.forEach(course => {
+                let option = document.createElement('option');
+                option.value = course;
+                option.textContent = course;
+                selectEl.appendChild(option);
+            });
+        }
+
         function resetVerification() {
             document.getElementById('passwordInp').value = "";
             document.getElementById('tableWrapper').classList.add('d-none');
@@ -196,11 +264,12 @@
 
         function handleVerifyAndSearch() {
             const selectedName = document.getElementById('studentSelect').value;
+            const selectedCourse = document.getElementById('courseSelect').value;
             const enteredPass = document.getElementById('passwordInp').value.trim();
             const tableWrapper = document.getElementById('tableWrapper');
             const emptyState = document.getElementById('emptyState');
 
-            if (selectedName === "") {
+            if (!selectedName) {
                 alert("Vui lòng chọn một học sinh trong danh sách!");
                 return;
             }
@@ -214,9 +283,15 @@
                 return;
             }
 
+            // Lọc theo cả Tên Học Sinh và Khóa Học được chọn
             const filteredScores = studentDataRecords.filter(item => {
                 let currentName = item["Họ và Tên Học Sinh"] || "";
-                return currentName.toString().trim() === selectedName.trim();
+                let currentCourse = item["Khóa Học"] || "TẤT CẢ";
+                
+                let matchName = currentName.toString().trim() === selectedName.trim();
+                let matchCourse = (selectedCourse === "ALL") || (currentCourse.trim() === selectedCourse.trim());
+                
+                return matchName && matchCourse;
             });
 
             renderTable(filteredScores);
@@ -229,12 +304,13 @@
             tbody.innerHTML = "";
 
             if (dataList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-4"><i class="fa-solid fa-circle-info me-2"></i>Học sinh này đã xác thực đúng mật khẩu nhưng chưa có bản ghi điểm bài học nào.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4"><i class="fa-solid fa-circle-info me-2"></i>Không tìm thấy bản ghi điểm nào cho tiêu chí chọn này.</td></tr>`;
                 return;
             }
 
             dataList.forEach(student => {
                 let name = student["Họ và Tên Học Sinh"] || "Chưa rõ";
+                let course = student["Khóa Học"] || "-";
                 let lesson = student["Bài Học"] || "-";
                 
                 let date = "-";
@@ -258,7 +334,12 @@
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${name}</strong></td>
-                        <td><span class="text-secondary">${lesson}</span></td>
+                        <td class="text-center"><span class="badge badge-course">${course}</span></td>
+                        <td>
+                            <a class="lesson-link" onclick="openLessonModal('${lesson.replace(/'/g, "\\'")}')">
+                                <i class="fa-solid fa-eye me-1"></i>${lesson}
+                            </a>
+                        </td>
                         <td class="text-center">${date}</td>
                         <td class="text-center fw-bold text-primary">${p1}</td>
                         <td class="text-center fw-bold text-success">${p2}</td>
@@ -268,6 +349,17 @@
                     </tr>
                 `;
             });
+        }
+
+        function openLessonModal(lessonTitle) {
+            const rawUrl = lessonImageMap[lessonTitle] || "";
+            const finalImgUrl = formatDriveUrl(rawUrl);
+
+            document.getElementById('modalLessonTitle').innerText = lessonTitle;
+            document.getElementById('modalLessonImg').src = finalImgUrl;
+            
+            const modal = new bootstrap.Modal(document.getElementById('lessonImageModal'));
+            modal.show();
         }
 
         window.onload = fetchStudentData;
