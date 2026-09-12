@@ -154,8 +154,9 @@
                             <th>Lập Trình (1-5)</th>
                             <th>Lắp Ráp (1-5)</th>
                             <th>Sáng Tạo (1-5)</th>
+                            <th class="text-info">Điểm Bài Tập</th>
                             <th>ĐTB Rubric</th>
-                            <th style="width: 25%;">Nhận Xét Chi Tiết</th>
+                            <th style="width: 20%;">Nhận Xét Chi Tiết</th>
                         </tr>
                     </thead>
                     <tbody id="studentData">
@@ -183,7 +184,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const CONFIG_API_URL = "https://script.google.com/macros/s/AKfycbzC6i1o1WA6hWylLd5gjst5w4BSNWV_YrK-wPe0m-BF6d0W5yWgiKQsEIB42U4yk2pnbg/exec"; 
+        const CONFIG_API_URL = "https://script.google.com/macros/s/AKfycbzuNidaF25w-z5rYBsR_tpJsceqQFvWztUKVw4MWWkPycbxhRscaK2YAB_tK2LYOwaM7w/exec"; 
         
         let studentDataRecords = [];
         let studentCredentials = {};
@@ -283,7 +284,6 @@
                 return;
             }
 
-            // Lọc theo cả Tên Học Sinh và Khóa Học được chọn
             const filteredScores = studentDataRecords.filter(item => {
                 let currentName = item["Họ và Tên Học Sinh"] || "";
                 let currentCourse = item["Khóa Học"] || "TẤT CẢ";
@@ -304,7 +304,7 @@
             tbody.innerHTML = "";
 
             if (dataList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4"><i class="fa-solid fa-circle-info me-2"></i>Không tìm thấy bản ghi điểm nào cho tiêu chí chọn này.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-4"><i class="fa-solid fa-circle-info me-2"></i>Không tìm thấy bản ghi điểm nào cho tiêu chí chọn này.</td></tr>`;
                 return;
             }
 
@@ -324,9 +324,19 @@
                 let p1 = parseFloat(student["Tiêu chí 1: Tư duy logic & Lập trình (1-5)"]) || 0;
                 let p2 = parseFloat(student["Tiêu chí 2: Kỹ năng lắp ráp Robot (1-5)"]) || 0;
                 let p3 = parseFloat(student["Tiêu chí 3: Giải quyết vấn đề & Sáng tạo (1-5)"]) || 0;
-                let comment = student["Nhận xét chi tiết / Đánh giá chung"] || "Chưa có nhận xét.";
+                
+                // Nhận điểm bài tập linh hoạt (dù là "Điểm bài tập" hay "Điểm Bài Tập")
+                let rawHomework = student["Điểm bài tập"] !== undefined ? student["Điểm bài tập"] : student["Điểm Bài Tập"];
+                let p4 = (rawHomework !== undefined && rawHomework !== null && rawHomework !== "") ? parseFloat(rawHomework) : null;
+                let homeworkDisplay = (p4 !== null && !isNaN(p4)) ? p4 : "-";
+                
+                // Nhận xét chi tiết
+                let rawComment = student["Nhận xét chi tiết / Đánh giá chung"] || student["Nhận xét chi tiết"] || "Chưa có nhận xét.";
+                let comment = rawComment ? rawComment : "Chưa có nhận xét.";
 
+                // Tính điểm trung bình cộng (3 tiêu chí Rubric)
                 let avg = ((p1 + p2 + p3) / 3).toFixed(1);
+                
                 let badgeClass = "bg-average";
                 if (avg >= 4.5) badgeClass = "bg-excellent";
                 else if (avg >= 3.5) badgeClass = "bg-good";
@@ -344,6 +354,7 @@
                         <td class="text-center fw-bold text-primary">${p1}</td>
                         <td class="text-center fw-bold text-success">${p2}</td>
                         <td class="text-center fw-bold text-warning">${p3}</td>
+                        <td class="text-center fw-bold text-info">${homeworkDisplay}</td>
                         <td class="text-center"><span class="badge badge-score ${badgeClass}">${avg}</span></td>
                         <td><small class="text-muted">${comment}</small></td>
                     </tr>
