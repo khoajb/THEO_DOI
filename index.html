@@ -33,6 +33,26 @@
             text-decoration: underline;
             color: #0a58ca;
         }
+
+        .youtube-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background-color: #ff0000;
+            color: #ffffff !important;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 6px;
+            text-decoration: none !important;
+            margin-top: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .youtube-btn:hover {
+            background-color: #cc0000;
+            transform: scale(1.02);
+        }
     </style>
 </head>
 <body>
@@ -166,7 +186,7 @@
         </div>
     </div>
 
-    <!-- MODAL HIỂN THỊ ẢNH -->
+    <!-- MODAL HIỂN THỊ ẢNH MÔ HÌNH -->
     <div class="modal fade" id="lessonImageModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
@@ -177,6 +197,31 @@
                 <div class="modal-body text-center p-3">
                     <h6 id="modalLessonTitle" class="fw-bold mb-3 text-secondary"></h6>
                     <img id="modalLessonImg" src="" alt="Mô hình bài học" class="img-fluid rounded shadow-sm" style="max-height: 450px; object-fit: contain;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL XEM VIDEO YOUTUBE (TỐI ƯU SỬA LỖI 153) -->
+    <div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white d-flex justify-content-between align-items-center">
+                    <h5 class="modal-title m-0"><i class="fa-brands fa-youtube me-2"></i>Video Sản Phẩm / Bài Học</h5>
+                    <div>
+                        <a id="directYoutubeLink" href="#" target="_blank" class="btn btn-sm btn-light text-danger fw-bold me-2">
+                            <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Mở trên YouTube
+                        </a>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" onclick="closeVideoModal()"></button>
+                    </div>
+                </div>
+                <div class="modal-body p-0 text-center bg-black">
+                    <div class="ratio ratio-16x9">
+                        <iframe id="youtubeIframe" src="" title="YouTube video player" frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                referrerpolicy="no-referrer-when-downgrade" 
+                                allowfullscreen></iframe>
+                    </div>
                 </div>
             </div>
         </div>
@@ -203,6 +248,39 @@
             }
 
             return fileId ? `https://lh3.googleusercontent.com/d/${fileId}` : rawUrl;
+        }
+
+        // Tách Video ID chính xác từ URL YouTube
+        function getYoutubeId(url) {
+            if (!url) return "";
+            url = url.trim();
+            let regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|shorts\/|watch\?v=|&v=)([^#&?]*).*/;
+            let match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : "";
+        }
+
+        // Tạo đường dẫn Embed kèm Origin phòng chống Error 153
+        function formatYoutubeEmbedUrl(url) {
+            let videoId = getYoutubeId(url);
+            if (!videoId) return url;
+            
+            let currentOrigin = window.location.origin;
+            if (currentOrigin === "null" || !currentOrigin || currentOrigin.startsWith("file://")) {
+                return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+            }
+            return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&origin=${encodeURIComponent(currentOrigin)}`;
+        }
+
+        // Tự động quét và biến Link YouTube trong Nhận xét thành nút bấm mở Video
+        function processCommentWithYoutube(commentText) {
+            if (!commentText) return "Chưa có nhận xét.";
+            
+            const youtubeRegex = /(https?:\/\/(?:www\.)?(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)[^\s<]+)/gi;
+            
+            return commentText.replace(youtubeRegex, function(url) {
+                let cleanUrl = url.replace(/['"]/g, '');
+                return `<br><a class="youtube-btn" onclick="openVideoModal('${cleanUrl}')"><i class="fa-brands fa-youtube"></i> Xem Video Trực Tiếp</a>`;
+            });
         }
 
         async function fetchStudentData() {
@@ -325,16 +403,13 @@
                 let p2 = parseFloat(student["Tiêu chí 2: Kỹ năng lắp ráp Robot (1-5)"]) || 0;
                 let p3 = parseFloat(student["Tiêu chí 3: Giải quyết vấn đề & Sáng tạo (1-5)"]) || 0;
                 
-                // Nhận điểm bài tập linh hoạt (dù là "Điểm bài tập" hay "Điểm Bài Tập")
                 let rawHomework = student["Điểm bài tập"] !== undefined ? student["Điểm bài tập"] : student["Điểm Bài Tập"];
                 let p4 = (rawHomework !== undefined && rawHomework !== null && rawHomework !== "") ? parseFloat(rawHomework) : null;
                 let homeworkDisplay = (p4 !== null && !isNaN(p4)) ? p4 : "-";
                 
-                // Nhận xét chi tiết
                 let rawComment = student["Nhận xét chi tiết / Đánh giá chung"] || student["Nhận xét chi tiết"] || "Chưa có nhận xét.";
-                let comment = rawComment ? rawComment : "Chưa có nhận xét.";
+                let formattedComment = processCommentWithYoutube(rawComment);
 
-                // Tính điểm trung bình cộng (3 tiêu chí Rubric)
                 let avg = ((p1 + p2 + p3) / 3).toFixed(1);
                 
                 let badgeClass = "bg-average";
@@ -356,7 +431,7 @@
                         <td class="text-center fw-bold text-warning">${p3}</td>
                         <td class="text-center fw-bold text-info">${homeworkDisplay}</td>
                         <td class="text-center"><span class="badge badge-score ${badgeClass}">${avg}</span></td>
-                        <td><small class="text-muted">${comment}</small></td>
+                        <td><small class="text-dark">${formattedComment}</small></td>
                     </tr>
                 `;
             });
@@ -371,6 +446,30 @@
             
             const modal = new bootstrap.Modal(document.getElementById('lessonImageModal'));
             modal.show();
+        }
+
+        function openVideoModal(videoUrl) {
+            const embedUrl = formatYoutubeEmbedUrl(videoUrl);
+            const directBtn = document.getElementById('directYoutubeLink');
+            
+            // Cập nhật link trực tiếp cho nút "Mở trên YouTube"
+            let videoId = getYoutubeId(videoUrl);
+            directBtn.href = videoId ? `https://www.youtube.com/watch?v=${videoId}` : videoUrl;
+
+            document.getElementById('youtubeIframe').src = embedUrl;
+            
+            const videoModalEl = document.getElementById('videoModal');
+            const modal = new bootstrap.Modal(videoModalEl);
+            
+            videoModalEl.addEventListener('hidden.bs.modal', function () {
+                document.getElementById('youtubeIframe').src = "";
+            }, { once: true });
+
+            modal.show();
+        }
+
+        function closeVideoModal() {
+            document.getElementById('youtubeIframe').src = "";
         }
 
         window.onload = fetchStudentData;
