@@ -176,7 +176,7 @@
                             <th>Sáng Tạo (1-5)</th>
                             <th class="text-info">Điểm Bài Tập</th>
                             <th>ĐTB Rubric</th>
-                            <th style="width: 20%;">Nhận Xét Chi Tiết</th>
+                            <th style="width: 20%;">Chú Thích</th>
                         </tr>
                     </thead>
                     <tbody id="studentData">
@@ -202,7 +202,7 @@
         </div>
     </div>
 
-    <!-- MODAL XEM VIDEO YOUTUBE (TỐI ƯU SỬA LỖI 153) -->
+    <!-- MODAL XEM VIDEO YOUTUBE -->
     <div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
@@ -229,7 +229,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const CONFIG_API_URL = "https://script.google.com/macros/s/AKfycbzuNidaF25w-z5rYBsR_tpJsceqQFvWztUKVw4MWWkPycbxhRscaK2YAB_tK2LYOwaM7w/exec"; 
+        const CONFIG_API_URL = "https://script.google.com/macros/s/AKfycby6347ErjELkBlBP9j37aawcYEN1wfXZeG5JQjyPgzWbeEJEPdotDoY7vnw4PClXaULYQ/exec"; 
         
         let studentDataRecords = [];
         let studentCredentials = {};
@@ -250,7 +250,6 @@
             return fileId ? `https://lh3.googleusercontent.com/d/${fileId}` : rawUrl;
         }
 
-        // Tách Video ID chính xác từ URL YouTube
         function getYoutubeId(url) {
             if (!url) return "";
             url = url.trim();
@@ -259,7 +258,6 @@
             return (match && match[2].length === 11) ? match[2] : "";
         }
 
-        // Tạo đường dẫn Embed kèm Origin phòng chống Error 153
         function formatYoutubeEmbedUrl(url) {
             let videoId = getYoutubeId(url);
             if (!videoId) return url;
@@ -271,16 +269,20 @@
             return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&origin=${encodeURIComponent(currentOrigin)}`;
         }
 
-        // Tự động quét và biến Link YouTube trong Nhận xét thành nút bấm mở Video
         function processCommentWithYoutube(commentText) {
-            if (!commentText) return "Chưa có nhận xét.";
+            if (!commentText || commentText.toString().trim() === "") return "-";
             
             const youtubeRegex = /(https?:\/\/(?:www\.)?(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)[^\s<]+)/gi;
             
-            return commentText.replace(youtubeRegex, function(url) {
-                let cleanUrl = url.replace(/['"]/g, '');
-                return `<br><a class="youtube-btn" onclick="openVideoModal('${cleanUrl}')"><i class="fa-brands fa-youtube"></i> Xem Video Trực Tiếp</a>`;
-            });
+            let hasYoutube = youtubeRegex.test(commentText);
+            if (hasYoutube) {
+                return commentText.replace(youtubeRegex, function(url) {
+                    let cleanUrl = url.replace(/['"]/g, '');
+                    return `<br><a class="youtube-btn" onclick="openVideoModal('${cleanUrl}')"><i class="fa-brands fa-youtube"></i> Xem Video Trực Tiếp</a>`;
+                });
+            }
+
+            return commentText;
         }
 
         async function fetchStudentData() {
@@ -407,7 +409,7 @@
                 let p4 = (rawHomework !== undefined && rawHomework !== null && rawHomework !== "") ? parseFloat(rawHomework) : null;
                 let homeworkDisplay = (p4 !== null && !isNaN(p4)) ? p4 : "-";
                 
-                let rawComment = student["Nhận xét chi tiết / Đánh giá chung"] || student["Nhận xét chi tiết"] || "Chưa có nhận xét.";
+                let rawComment = student["Nhận xét chi tiết / Đánh giá chung"] || student["Nhận xét chi tiết"] || "";
                 let formattedComment = processCommentWithYoutube(rawComment);
 
                 let avg = ((p1 + p2 + p3) / 3).toFixed(1);
@@ -415,6 +417,8 @@
                 let badgeClass = "bg-average";
                 if (avg >= 4.5) badgeClass = "bg-excellent";
                 else if (avg >= 3.5) badgeClass = "bg-good";
+
+                let noteAlignClass = (formattedComment === "-") ? "text-center" : "";
 
                 tbody.innerHTML += `
                     <tr>
@@ -431,7 +435,7 @@
                         <td class="text-center fw-bold text-warning">${p3}</td>
                         <td class="text-center fw-bold text-info">${homeworkDisplay}</td>
                         <td class="text-center"><span class="badge badge-score ${badgeClass}">${avg}</span></td>
-                        <td><small class="text-dark">${formattedComment}</small></td>
+                        <td class="${noteAlignClass}"><small class="text-dark">${formattedComment}</small></td>
                     </tr>
                 `;
             });
@@ -452,7 +456,6 @@
             const embedUrl = formatYoutubeEmbedUrl(videoUrl);
             const directBtn = document.getElementById('directYoutubeLink');
             
-            // Cập nhật link trực tiếp cho nút "Mở trên YouTube"
             let videoId = getYoutubeId(videoUrl);
             directBtn.href = videoId ? `https://www.youtube.com/watch?v=${videoId}` : videoUrl;
 
