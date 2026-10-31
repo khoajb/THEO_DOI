@@ -62,7 +62,7 @@
             .container { padding-left: 10px; padding-right: 10px; max-width: 100% !important; }
             .card { padding: 15px !important; margin-bottom: 15px; }
             h5.card-title { font-size: 1rem; }
-            .table { font-size: 0.8rem; min-width: 750px; } /* Đảm bảo bảng giữ đủ khung ngang có thể trượt mượt mà trên di động */
+            .table { font-size: 0.8rem; min-width: 750px; }
             .modal-dialog { margin: 10px; max-width: calc(100% - 20px); }
         }
 
@@ -371,15 +371,18 @@
                 return;
             }
 
+            // Kiểm tra mật khẩu (Nếu là ADMIN/admin HOẶC đúng mật khẩu cá nhân của học sinh đó)
             const correctPass = studentCredentials[selectedName] ? studentCredentials[selectedName].toString().trim() : "";
+            const isAdmin = (enteredPass === "ADMIN" || enteredPass === "admin");
 
-            if (enteredPass !== correctPass) {
+            if (!isAdmin && enteredPass !== correctPass) {
                 alert("Mật khẩu truy cập chưa chính xác! Vui lòng kiểm tra lại.");
                 tableWrapper.classList.add('d-none');
                 emptyState.classList.remove('d-none');
                 return;
             }
 
+            // Lọc đúng dữ liệu của học sinh đang được chọn
             const filteredScores = studentDataRecords.filter(item => {
                 let currentName = item["Họ và Tên Học Sinh"] || "";
                 let currentCourse = item["Khóa Học"] || "TẤT CẢ";
